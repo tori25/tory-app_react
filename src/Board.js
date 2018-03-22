@@ -13,8 +13,18 @@ constructor (props){
     this.update = this.update.bind(this);
     this.remove = this.remove.bind(this);
     this.nextId = this.nextId. bind(this);
+}
+componentWillMount (){
+    var self = this
+    if (this.props.count){
+        fetch(`https://baconipsum.com/api/?type=all-meat&sentences=${this.props.count}`)
+        .then(response => response.json())
+        .then(json => json[0]
+            .split('. ')
+            .forEach(sentence => self.add(sentence.substring(0, 25)))
+        )
     }
-
+}
 add (text){
     this.setState (prevState => ({
         notes: [
@@ -33,10 +43,10 @@ nextId (){
 update (newText, i){
     console.log('updating item at index ' , i , newText)
     this.setState(prevState => 
-        ({notes: prevState.notes.map(note => 
-            (note.id != i)? note : {...note, note: newText})
+        ({notes: prevState.notes.map(note =>(note.id != i)? note : {...note, note: newText})
         }))
 }
+
 remove(id){
     console.log('removed item at index ' , id)
     this.setState(prevState => ({
@@ -45,7 +55,7 @@ remove(id){
 }
 eachNote (note, i){
     return (
-        <Note key = {i} index = {i} 
+        <Note key = {note.id} index = {note.id} 
             onChange = {this.update} 
             onRemove = {this.remove}>
               {note.note} 
@@ -54,10 +64,12 @@ eachNote (note, i){
 }
 render (){
     return (
-        <div className="board"> {this.state.notes.map(this.eachNote)}
-           <button onClick = {this.add.bind(null, "New Note")}  id="add"> 
-               <FaPlus /> 
-           </button>
+      
+            <div className="board">
+                {this.state.notes.map(this.eachNote)}
+                <button onClick = {this.add.bind(null, "New Note")} id="add" > 
+                    <FaPlus /> 
+                </button>
         </div>
             
         )
